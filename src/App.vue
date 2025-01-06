@@ -16,6 +16,35 @@
 <script setup>
 import { useEditor, EditorContent } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
+import { onMounted, ref } from 'vue'
+
+const datab = ref(null)
+
+const getDatabase = async () => {
+  return new Promise((resolve, reject) => {
+    let db = window.indexedDB.open("notes") //defaults window.indexedDB.open("notes",1) 
+
+    db.onsuccess = (s) => {
+      console.log('db.onsuccess',s);
+      resolve(s.target.result);
+    };
+
+    db.onerror = (e) => {
+      reject("Error opening the database.", e);
+    };
+
+    db.onupgradeneeded = (up) => { 
+      //when requesting data from a version of the database that is higher than the one loaded into the site, but will fire if db does not exist yet
+      console.log('db.onupgradeneeded',up);
+      up.target.result.createObjectStore('notes_table')
+    };
+
+  })
+}
+
+onMounted(async () => {
+  datab.value = await getDatabase();
+});
 
 const editor = useEditor({
   content: "<h1>Start</h1>",
