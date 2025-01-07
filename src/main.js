@@ -3,8 +3,8 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import App from './App.vue'
-//import './main.css'
-import './registerServiceWorker'
+import '/src/main.css'
+import './registerServiceWorker.js'
 
 const app = createApp(App)
 
