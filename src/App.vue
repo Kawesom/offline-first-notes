@@ -1,5 +1,9 @@
 <template>
   <div class="flex w-screen h-screen text-gray-500">
+    <div v-if="isOffline" class="w-full absolute top-0 left-0 z-10 opacity-75 text-center py-2 bg-red-300 border-b border-red-500 text-red-700">
+      Sorry, seems you're offline.
+    </div>
+
     <div class="flex flex-col flex-shrink-0 w-64 border-r border-gray-300 bg-gray-100">
       <!--Sidebar-->
       <div class="h-0 overflow-auto flex-grow">
@@ -34,6 +38,7 @@
       <!--Main Content - Editor-->
       <div class="flex flex-col flex-grow overflow-auto">
       <editor-content :editor="editor" />
+      
       </div>
 
       <div class="h-16 bg-gray-100 border-t border-gray-300 text-right">
@@ -69,6 +74,7 @@ import { onMounted, ref } from 'vue'
 const dataB = ref(null);
 const notes = ref([]);
 const activeNote = ref({});
+const isOffline = ref(!navigator.onLine)
 
 const getDatabase = async () => {
   return new Promise((resolve, reject) => {
@@ -97,6 +103,16 @@ onMounted(async () => {
   dataB.value = await getDatabase();
   let gotten_notes = await getNotes();
   notes.value = gotten_notes.reverse();
+
+  window.onoffline = () => {
+    isOffline.value = true;
+  };
+  window.addEventListener('online',() => {
+    isOffline.value = false;
+
+    // sync up a user's data with an external api
+    syncUserData();
+  });
 });
 
 const editor = useEditor({
@@ -190,7 +206,14 @@ const addNewNote = () => {
     activeNote.value = note;
     transaction.objectStore('notes_table').add({note})
   })
-  
+}
+
+const syncUserData = () => {
+  if (isOffline.value) {
+    return;
+  }
+
+  //make my api request to an external server
 }
 
 </script>
